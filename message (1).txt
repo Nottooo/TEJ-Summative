@@ -1,0 +1,69 @@
+package Summative;
+
+import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Servo;
+
+@TeleOp(group = "Summative")
+public class FollowUp extends OpMode
+{
+    private DcMotorEx yawMotor;
+    private Servo lServo, rServo;
+
+    public double lServoPos = 0.5;
+    public double rServoPos = 0.5;
+
+    @Override
+    public void init() {
+        yawMotor = hardwareMap.get(DcMotorEx.class, "yawMotor");
+        yawMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        yawMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        yawMotor.setZeroPowerBehavior(BRAKE);
+
+        lServo = hardwareMap.get(Servo.class, "lServo");
+        rServo = hardwareMap.get(Servo.class, "rServo");
+    }
+
+    @Override
+    public void loop() {
+//        Manual Mode
+
+        if (gamepad1.dpad_up && lServoPos < 0.6) {
+            lServoPos += 0.01;
+            rServoPos += 0.01;
+        }
+
+        if (gamepad1.dpad_down && lServoPos > 0.3) {
+            lServoPos -= 0.01;
+            rServoPos -= 0.01;
+        }
+
+        //always set the servo to a given position
+        lServo.setPosition(lServoPos);
+        rServo.setPosition(rServoPos);
+
+        if (gamepad1.dpad_right && yawMotor.getCurrentPosition() < 80) {
+            yawMotor.setPower(0.2);
+        }
+        else{
+            yawMotor.setPower(0);
+        }
+
+        if (gamepad1.dpad_left && yawMotor.getCurrentPosition() > -80) {
+            yawMotor.setPower(-0.2);
+        }
+        else{
+            yawMotor.setPower(0);
+        }
+
+        telemetry.addData("Yaw", yawMotor.getCurrentPosition());
+        telemetry.addData("Left Servo Position", lServoPos);
+        telemetry.addData("Right Servo Position", rServoPos);
+        telemetry.update();
+    }
+}
+
+//this is the test code
